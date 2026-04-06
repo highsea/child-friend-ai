@@ -1,0 +1,22 @@
+# ZeroClaw Configuration for Child Friend AI
+
+provider:
+  type: ollama
+  model: qwen2.5:0.5b-instruct-q4_K_M
+  url: http://localhost:11434
+
+memory:
+  backend: sqlite
+  path: ./workspace/memory.db
+  hybrid_search: true
+  retention_days: 30
+
+gateway:
+  mode: local
+  port: 18789
+  host: 127.0.0.1
+  require_pairing: false
+
+autonomy:
+  level: supervised
+  workspace_only: true

@@ -1,0 +1,39 @@
+# General
+.DS_Store
+*.log
+*~
+*.swp
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.Python
+python_env/
+env/
+venv/
+pip-wheel-metadata/
+.python-version
+.pytest_cache/
+
+# ESP-IDF / build artifacts
+build/
+firmware/sdkconfig.old
+CMakeFiles/
+CMakeCache.txt
+*.ninja
+*.o
+*.obj
+*.elf
+*.map
+*.bin
+
+# IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# Model artifacts
+server/models/

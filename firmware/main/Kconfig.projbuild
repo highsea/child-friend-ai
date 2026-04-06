@@ -1,0 +1,27 @@
+config WAKE_WORD
+    string "Wake Word"
+    default "xiaoxing"
+    help
+        Wake word for the device.
+        Use "xiaoxing" for "你好小星"
+
+        Supported models:
+        - wakenet7: supports custom wake words
+        - wakenet5: supports limited keywords
+
+menuconfig ESP_SR_ENABLED
+    bool "Enable ESP Speech Recognition"
+    default y
+    if ESP_SR_ENABLED
+
+        config SR_MODE
+            int "Speech Recognition Mode"
+            default 2
+            range 0 3
+            help
+                0: Close SR
+                1: Wake word detection only
+                2: Wake word + command recognition
+                3: Voice mesh
+
+    endif
