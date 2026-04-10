@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef void (*ws_connected_cb_t)(void);
 typedef void (*ws_disconnected_cb_t)(void);

@@ -344,6 +344,26 @@ void display_show_state(display_state_t state)
         text = "Error!";
         bg_color = 0xF800;
         break;
+    case DISPLAY_STATE_PROV_AP:
+        text = "AP Mode";
+        bg_color = 0x07E0;
+        break;
+    case DISPLAY_STATE_PROV_SCANNING:
+        text = "Scanning...";
+        bg_color = 0x0010;
+        break;
+    case DISPLAY_STATE_PROV_CONNECTING:
+        text = "Connecting...";
+        bg_color = 0x03E0;
+        break;
+    case DISPLAY_STATE_PROV_SUCCESS:
+        text = "Connected!";
+        bg_color = 0x07E0;
+        break;
+    case DISPLAY_STATE_PROV_FAILED:
+        text = "Failed!";
+        bg_color = 0xF800;
+        break;
     }
 
     display_show_text_with_bg(text, text_color, bg_color);

@@ -17,15 +17,6 @@ static ws_disconnected_cb_t on_disconnected = NULL;
 static ws_text_cb_t on_text = NULL;
 static ws_binary_cb_t on_binary = NULL;
 
-static void websocket_task(void *pvParameters);
-
-static void log_error_if_nonzero(const char *message, int errorno)
-{
-    if (errorno != 0) {
-        ESP_LOGE(TAG, "Last error %s: %d", message, errorno);
-    }
-}
-
 static void websocket_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
     esp_websocket_event_data_t *data = (esp_websocket_event_data_t *)event_data;
@@ -40,7 +31,6 @@ static void websocket_event_handler(void *handler_args, esp_event_base_t base, i
     case WEBSOCKET_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "WEBSOCKET_EVENT_DISCONNECTED");
         connected = false;
-        log_error_if_nonzero("HTTP status code", data->error_handle->http_errno);
         if (on_disconnected) {
             on_disconnected();
         }
@@ -65,9 +55,6 @@ static void websocket_event_handler(void *handler_args, esp_event_base_t base, i
         break;
     case WEBSOCKET_EVENT_ERROR:
         ESP_LOGI(TAG, "WEBSOCKET_EVENT_ERROR");
-        log_error_if_nonzero("WebSocket", data->error_handle->error_type);
-        log_error_if_nonzero("HTTP status code", data->error_handle->http_errno);
-        log_error_if_nonzero("HTTP failure", data->error_handle->http_handle);
         break;
     default:
         break;
@@ -80,10 +67,6 @@ void websocket_init(const char *host, uint16_t port)
 
     esp_websocket_client_config_t websocket_cfg = {
         .uri = ws_uri,
-        .keepalive = 60,
-        .disable_auto_reconnect = false,
-        .ping_interval_sec = 30,
-        .ping_pong_interval_sec = 10,
     };
 
     client = esp_websocket_client_init(&websocket_cfg);
@@ -126,14 +109,14 @@ int websocket_send_binary(const uint8_t *data, size_t len)
 int websocket_send_status(const char *status)
 {
     char buf[128];
-    int len = sprintf(buf, "{\"type\":\"status\",\"content\":\"%s\"}", status);
+    sprintf(buf, "{\"type\":\"status\",\"content\":\"%s\"}", status);
     return websocket_send_text(buf);
 }
 
 int websocket_send_wakeword(bool detected)
 {
     char buf[128];
-    int len = sprintf(buf, "{\"type\":\"wakeword\",\"detected\":%s}", detected ? "true" : "false");
+    sprintf(buf, "{\"type\":\"wakeword\",\"detected\":%s}", detected ? "true" : "false");
     return websocket_send_text(buf);
 }
 

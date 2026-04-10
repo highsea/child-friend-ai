@@ -6,6 +6,6 @@
 
 extern volatile bool wifi_is_connected;
 
-void wifi_init_sta(void);
+void wifi_init_sta(const char *ssid, const char *password);
 
 #endif

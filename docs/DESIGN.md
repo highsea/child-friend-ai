@@ -250,7 +250,7 @@ STARTING ──► IDLE ──► LISTENING ──► CONNECTING ──► SPEAK
 
 - **协议**：WebSocket (ws://)
 - **连接**：ESP32 主动连接树莓派
-- **端口**：8080
+- **端口**：12020
 - **重连机制**：自动重连，间隔 3s
 
 #### 4.3.2 报文格式
@@ -336,7 +336,7 @@ memory:
 
 channel:
   type: websocket
-  port: 8080
+  port: 12020  # WebSocket 服务端口
 ```
 
 ### 5.3 预置人格

@@ -17,10 +17,12 @@ venv/
 pip-wheel-metadata/
 .python-version
 .pytest_cache/
-
+.cache/
 # ESP-IDF / build artifacts
 build/
 firmware/sdkconfig.old
+firmware/components
+firmware/managed_components
 CMakeFiles/
 CMakeCache.txt
 *.ninja
@@ -37,3 +39,5 @@ CMakeCache.txt
 
 # Model artifacts
 server/models/
+server/src/simple_ws_server
+backup

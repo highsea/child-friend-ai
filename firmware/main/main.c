@@ -16,6 +16,7 @@
 #include "display.h"
 #include "wifi_init.h"
 #include "wifi_provisioning.h"
+#include "button.h"
 
 static const char *TAG = "child-friend-ai";
 
@@ -65,6 +66,15 @@ static void on_ws_binary(const uint8_t *data, size_t len)
     audio_service_play(data, len);
 }
 
+static void on_button_event(button_event_t event)
+{
+    if (event == BUTTON_EVENT_LONG_PRESS) {
+        ESP_LOGI(TAG, "Button long press - resetting WiFi provisioning");
+        wifi_provisioning_clear();
+        esp_restart();
+    }
+}
+
 void app_main(void)
 {
     ESP_LOGI(TAG, "Child Friend AI Starting...");
@@ -81,6 +91,12 @@ void app_main(void)
     state_machine_set_callback(on_state_changed);
 
     board_init(NULL);
+
+    audio_service_init();
+    audio_service_start();
+
+    button_init();
+    button_set_callback(on_button_event);
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -101,28 +117,39 @@ void app_main(void)
     char password[64] = {0};
     wifi_provisioning_get_credentials(ssid, password);
     ESP_LOGI(TAG, "Connecting to WiFi: %s", ssid);
-    wifi_init_sta();
 
-    while (!wifi_is_connected) {
+    audio_service_notify_wifi_connecting();
+
+    wifi_init_sta(ssid, password);
+
+    int retry_count = 0;
+    while (!wifi_is_connected && retry_count < 30) {
         vTaskDelay(pdMS_TO_TICKS(1000));
+        retry_count++;
+        ESP_LOGI(TAG, "Waiting for WiFi connection... (%d)", retry_count);
     }
 
+    if (!wifi_is_connected) {
+        ESP_LOGE(TAG, "WiFi connection failed!");
+        audio_service_notify_wifi_failed();
+        while (1) {
+            vTaskDelay(pdMS_TO_TICKS(1000));
+        }
+    }
+
+    audio_service_notify_wifi_connected();
     wifi_provisioning_stop();
 
-    ret = audio_service_init();
-    if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Audio service init failed!");
-    }
-    audio_service_set_wake_word_callback(on_wake_word_detected);
-    audio_service_set_vad_callback(on_vad_speech_end);
+    char ws_host[64];
+    uint16_t ws_port;
+    wifi_provisioning_get_websocket_credentials(ws_host, &ws_port);
+    ESP_LOGI(TAG, "WebSocket server: %s:%d", ws_host, ws_port);
 
-    websocket_init(CONFIG_SERVER_HOST, CONFIG_SERVER_PORT);
+    websocket_init(ws_host, ws_port);
     websocket_set_connected_callback(on_ws_connected);
     websocket_set_disconnected_callback(on_ws_disconnected);
     websocket_set_text_callback(on_ws_text);
     websocket_set_binary_callback(on_ws_binary);
-
-    audio_service_start();
 
     state_machine_set_state(STATE_IDLE);
     display_show_state(DISPLAY_STATE_IDLE);
